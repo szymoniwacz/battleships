@@ -1,0 +1,236 @@
+import React, { Component } from "react"
+import { api } from './api';
+import consumer from "../channels/consumer"
+import PropTypes from "prop-types"
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Board from "./Board"
+import Statistics from "./Statistics"
+
+class Game extends Component {
+  constructor(props) {
+    super(props)
+
+    this.state = {
+      loadingMove: false,
+      moveAvailable: this.props.moveAvailable,
+      myHits: this.props.myHits,
+      myMoves: this.props.myMoves,
+      mySunk: this.props.mySunk,
+      myWon: this.props.myWon,
+      opponentConnected: this.props.opponentConnected,
+      opponentHits: this.props.opponentHits || 0,
+      opponentMoves: this.props.opponentMoves || [],
+      opponentSunk: this.props.opponentSunk || [],
+      opponentWon: this.props.opponentWon || false,
+      playerConnected: false,
+    }
+  }
+
+  processMove = (data) => {
+    if (data["playerId"] === this.props.currentPlayerId) {
+      this.setState(prevState => {
+        let hits = prevState.myHits + data["move"][2];
+        let won = hits == this.props.shipsLength;
+        let moveAvailable = won ? false : data["move"][2] === 1;
+
+        return {
+          ...prevState,
+          moveAvailable: moveAvailable,
+          myHits: hits,
+          myMoves: [...prevState.myMoves, data["move"]],
+          myWon: won,
+        }
+      });
+      if (data["shipCoords"]) {
+        this.setState(prevState => ({ opponentSunk: [...prevState.opponentSunk, data["shipCoords"]] }))
+      }
+    } else {
+      this.setState(prevState => {
+        let hits = prevState.opponentHits + data["move"][2];
+        let won = hits == this.props.shipsLength;
+        let moveAvailable = won ? false : data["move"][2] === 0;
+
+        return {
+          ...prevState,
+          moveAvailable: moveAvailable,
+          opponentHits: hits,
+          opponentMoves: [...prevState.opponentMoves, data["move"]],
+          opponentWon: won,
+        }
+      });
+      if (data["shipCoords"]) {
+        this.setState(prevState => ({ mySunk: [...prevState.mySunk, data["shipCoords"]] }))
+      }
+    }
+  }
+
+  componentDidMount() {
+    const that = this
+    const currentPlayerId = this.props.currentPlayerId
+    consumer.subscriptions.create({ channel: "GamesChannel", slug: this.props.slug }, {
+      connected() {
+        console.log(`${currentPlayerId} connected`)
+        that.setState({ playerConnected: true })
+      },
+
+      disconnected() {
+        console.log(`${currentPlayerId} disconnected`)
+        that.setState({ playerConnected: false })
+      },
+
+      received(data) {
+        if (data["action"] === "move") { that.processMove(data) }
+        if (data["action"] === "opponentConnected") {
+          that.setState({ opponentConnected: true })
+        }
+      }
+    });
+  }
+
+  moveAlreadyDone = (x, y) => {
+    for (let move of this.state.myMoves) {
+      if (move[0] === x && move[1] === y) { return true }
+    }
+  }
+
+  sendMove = (x, y) => {
+    if (!this.state.opponentConnected ||
+      !this.state.moveAvailable ||
+      this.state.loadingMove ||
+      this.moveAlreadyDone(x, y)
+    ) { return null }
+
+    const params = { slug: this.props.slug, currentPlayerId: this.props.currentPlayerId, x: x, y: y };
+    this.setState({ loadingMove: true }, () => (
+      api().post('/moves', params)
+        .catch(error => console.log(error))
+        .then(() => this.setState({ loadingMove: false }))
+    ))
+  }
+
+  checkCellClassName = (x, y) => {
+    let newClassName;
+    this.state.opponentMoves.map((move) => {
+      if (move[0] === x && move[1] === y) {
+        switch(move[2]) {
+          case 1: newClassName = "hit"; break;
+          case 0: newClassName = "miss"; break;
+        }
+      }
+    })
+    return newClassName;
+  }
+
+  infoMessage = () => {
+    if (this.state.myWon) return("You have won!")
+    if (this.state.opponentWon) return("Opponent won!")
+    if (this.state.playerConnected) {
+      if (this.state.opponentConnected) {
+        return(this.state.moveAvailable ? "Your move" : "Opponent's move")
+      } else {
+        return("Waiting for opponent")
+      }
+    } else {
+      return("Player disconnected, please reload this page.")
+    }
+  }
+
+  render() {
+    const {
+      gameStatisticsUrl,
+      myShips,
+      newGameUrl,
+      shipsLength,
+    } = this.props;
+
+    const {
+      moveAvailable,
+      myHits,
+      myMoves,
+      mySunk,
+      opponentConnected,
+      opponentHits,
+      opponentMoves,
+      opponentSunk,
+      playerConnected,
+    } = this.state;
+
+    return (
+      <div className="container">
+        <div className="row justify-content-center">
+          <div className="col-8">
+            <h1>Battleships</h1>
+          </div>
+        </div>
+        <div className="row justify-content-center">
+          <div className="col-5">
+            <div className="alert alert-info">
+              { this.infoMessage() }
+            </div>
+          </div>
+          <div className="col-3">
+            <div className="btn-group float-right" role="group">
+              <CopyToClipboard text={window.location.href}
+                onCopy={() => this.setState({ copied: true })}>
+                <button type="button" className="btn btn-sm btn-success">{ this.state.copied ? "Url copied" : "Copy url" }</button>
+              </CopyToClipboard>
+              <a className="btn btn-primary btn-sm btn-primary" href={newGameUrl} role="button">New game</a>
+              <a className="btn btn-primary btn-sm btn-info" href={gameStatisticsUrl} role="button">Statistics</a>
+            </div>
+          </div>
+        </div>
+        <div className="row justify-content-center">
+          <div className="col-4 text-center">
+            My board
+            <Board
+              moves={opponentMoves}
+              ships={myShips}
+              sunkenShips={mySunk}
+            />
+            <Statistics
+              hits={opponentHits}
+              left={shipsLength - opponentHits}
+              misses={opponentMoves.length - opponentHits}
+              sunk={mySunk.length}
+            />
+          </div>
+          <div className="col-4 text-center">
+            Opponents board
+            <Board
+              moveAvailable={playerConnected && moveAvailable && opponentConnected}
+              moves={myMoves}
+              sendMove={this.sendMove}
+              sunkenShips={opponentSunk}
+            />
+            <Statistics
+              hits={myHits}
+              left={shipsLength - myHits}
+              misses={myMoves.length - myHits}
+              sunk={opponentSunk.length}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+Game.propTypes = {
+  currentPlayerId: PropTypes.number.isRequired,
+  gameStatisticsUrl: PropTypes.string.isRequired,
+  moveAvailable: PropTypes.bool,
+  myHits: PropTypes.number,
+  myMoves: PropTypes.array,
+  myShips: PropTypes.array,
+  mySunk: PropTypes.array,
+  newGameUrl: PropTypes.string.isRequired,
+  opponentConnected: PropTypes.bool,
+  opponentHits: PropTypes.number,
+  opponentMoves: PropTypes.array,
+  opponentSunk: PropTypes.array,
+  playerConnected: PropTypes.bool,
+  shipsLength: PropTypes.number,
+  slug: PropTypes.string.isRequired,
+}
+
+export default Game

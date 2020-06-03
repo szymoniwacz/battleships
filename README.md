@@ -1,6 +1,6 @@
 # Battleships
 ## Setup
-Run rails server and enjoy the game under `http:\\localhost:3000` (default).
+Run rails server and enjoy the game under `http://localhost:3000` (default).
 
 ## Rules
 1. Only two players are allowed in-game.

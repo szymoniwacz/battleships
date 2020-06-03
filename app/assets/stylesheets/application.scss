@@ -1,0 +1,60 @@
+@import "bootstrap";
+
+div.alert {
+  line-height: 5px;
+  padding: 0.75rem 0.5rem
+}
+
+h1 {
+  line-height: 80px;
+}
+
+table.board {
+  border: 1px #000 solid;
+  margin: auto;
+  width: 50% !important;
+  &[data-move-available="false"] {
+    opacity: 0.3;
+  }
+  &[data-move-available="true"] {
+    td div {
+      &:not(.hit):not(.miss):hover {
+        border-color: blue;
+        outline: 2px solid blue;
+        cursor: pointer;
+      }
+    }
+  }
+  td {
+    border: 1px #000 solid;
+    padding: 0;
+    margin: 0;
+    div {
+      width: 30px;
+      height: 30px;
+      text-align: center;
+      &.ship {
+        background-color: #d4edda;
+      }
+      &.miss {
+        line-height: 25px;
+        &:before {
+          content: ' \25CF';
+          font-size: 10px;
+        }
+      }
+      &.hit {
+        line-height: 28px;
+        border-color: red;
+        outline: 1px solid red;
+        &.sunk {
+          background-color: #d6d8d9;
+        }
+        &:before {
+          content: "\274c";
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
