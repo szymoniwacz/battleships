@@ -2,7 +2,7 @@ import React, { Component } from "react"
 import { api } from './api';
 import consumer from "../channels/consumer"
 import PropTypes from "prop-types"
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import ActionsBar from "./ActionsBar"
 import Board from "./Board"
 import Statistics from "./Statistics"
 
@@ -121,20 +121,6 @@ class Game extends Component {
     return newClassName;
   }
 
-  infoMessage = () => {
-    if (this.state.myWon) return("You have won!")
-    if (this.state.opponentWon) return("Opponent won!")
-    if (this.state.playerConnected) {
-      if (this.state.opponentConnected) {
-        return(this.state.moveAvailable ? "Your move" : "Opponent's move")
-      } else {
-        return("Waiting for opponent")
-      }
-    } else {
-      return("Player disconnected, please reload this page.")
-    }
-  }
-
   render() {
     const {
       gameStatisticsUrl,
@@ -148,10 +134,12 @@ class Game extends Component {
       myHits,
       myMoves,
       mySunk,
+      myWon,
       opponentConnected,
       opponentHits,
       opponentMoves,
       opponentSunk,
+      opponentWon,
       playerConnected,
     } = this.state;
 
@@ -163,21 +151,15 @@ class Game extends Component {
           </div>
         </div>
         <div className="row justify-content-center">
-          <div className="col-5">
-            <div className="alert alert-info">
-              { this.infoMessage() }
-            </div>
-          </div>
-          <div className="col-3">
-            <div className="btn-group float-right" role="group">
-              <CopyToClipboard text={window.location.href}
-                onCopy={() => this.setState({ copied: true })}>
-                <button type="button" className="btn btn-sm btn-success">{ this.state.copied ? "Url copied" : "Copy url" }</button>
-              </CopyToClipboard>
-              <a className="btn btn-primary btn-sm btn-primary" href={newGameUrl} role="button">New game</a>
-              <a className="btn btn-primary btn-sm btn-info" href={gameStatisticsUrl} role="button">Statistics</a>
-            </div>
-          </div>
+          <ActionsBar
+            newGameUrl={newGameUrl}
+            gameStatisticsUrl={gameStatisticsUrl}
+            myWon={myWon}
+            opponentWon={opponentWon}
+            playerConnected={playerConnected}
+            opponentConnected={opponentConnected}
+            moveAvailable={moveAvailable}
+          />
         </div>
         <div className="row justify-content-center">
           <div className="col-4 text-center">
