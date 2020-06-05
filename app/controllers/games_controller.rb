@@ -21,7 +21,7 @@ class GamesController < ApplicationController
 
   def statistics
     @players = current_game.players.map do
-      { hits: _1.hits, miss: _1.miss, sunk: current_game.opponent_of(_1).sunk.size }
+      { hits: _1.hits, miss: _1.miss, sunk: current_game.opponent_of(_1)&.sunk&.size || 0 }
     end
   end
 
