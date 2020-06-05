@@ -108,19 +108,6 @@ class Game extends Component {
     ))
   }
 
-  checkCellClassName = (x, y) => {
-    let newClassName;
-    this.state.opponentMoves.map((move) => {
-      if (move[0] === x && move[1] === y) {
-        switch(move[2]) {
-          case 1: newClassName = "hit"; break;
-          case 0: newClassName = "miss"; break;
-        }
-      }
-    })
-    return newClassName;
-  }
-
   render() {
     const {
       gameStatisticsUrl,
