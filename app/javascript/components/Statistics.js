@@ -1,10 +1,10 @@
-import React from "react"
+import React, { Fragment } from "react"
 import PropTypes from "prop-types"
 
 const Statistics = ({ hits, misses, left, sunk }) => (
-  <React.Fragment>
+  <Fragment>
     hits: { hits } | misses: { misses } | left: { left } | sunk: { sunk }
-  </React.Fragment>
+  </Fragment>
 )
 
 Statistics.propTypes = {
