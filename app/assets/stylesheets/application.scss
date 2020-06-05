@@ -5,6 +5,31 @@ div.alert {
   padding: 0.75rem 0.5rem
 }
 
+input#name_setter {
+  height: calc(1em + 0.8rem + 2px) !important;
+}
+
+input#new_message {
+  border-radius: 0;
+  font-size: 14px;
+}
+
+div#chat_messages_box {
+  border: 1px solid #000;
+  height: 310px;
+  font-size: 14px;
+  text-align: left;
+  padding: 5px;
+  line-height: 20px;
+  overflow: scroll;
+  p {
+    margin: 0px;
+  }
+  span {
+    //padding: 5px;
+  }
+}
+
 h1 {
   line-height: 80px;
 }

@@ -5,6 +5,7 @@ import PropTypes from "prop-types"
 import ActionsBar from "./ActionsBar"
 import Board from "./Board"
 import Statistics from "./Statistics"
+import Chat from "./Chat"
 
 class Game extends Component {
   constructor(props) {
@@ -158,7 +159,7 @@ class Game extends Component {
     return (
       <div className="container">
         <div className="row justify-content-center">
-          <div className="col-8">
+          <div className="col-lg-12">
             <h1>Battleships</h1>
           </div>
         </div>
@@ -174,8 +175,16 @@ class Game extends Component {
           />
         </div>
         <div className="row justify-content-center">
-          <div className="col-4 text-center">
+          <div className="col-lg-4 text-center">
             My board
+          </div>
+          <div className="col-lg-4 text-center">
+            Opponents board
+          </div>
+          <div className="col-lg-4 text-center"></div>
+        </div>
+        <div className="row justify-content-center">
+          <div className="col-lg-4 text-center">
             <Board
               moves={opponentMoves}
               ships={myShips}
@@ -188,8 +197,7 @@ class Game extends Component {
               sunk={mySunk.length}
             />
           </div>
-          <div className="col-4 text-center">
-            Opponents board
+          <div className="col-lg-4 text-center">
             <Board
               moveAvailable={playerConnected && moveAvailable && opponentConnected}
               moves={myMoves}
@@ -202,6 +210,9 @@ class Game extends Component {
               misses={myMoves.length - myHits}
               sunk={opponentSunk.length}
             />
+          </div>
+          <div className="col-lg-4 text-center">
+            <Chat />
           </div>
         </div>
       </div>
