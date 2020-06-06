@@ -5,11 +5,11 @@ div.alert {
   padding: 0.75rem 0.5rem
 }
 
-input#name_setter {
+input#player_name_setter {
   height: calc(1em + 0.8rem + 2px) !important;
 }
 
-input#new_message {
+input#new_message, input#player_name_setter {
   border-radius: 0;
   font-size: 14px;
 }
@@ -25,13 +25,14 @@ div#chat_messages_box {
   p {
     margin: 0px;
   }
-  span {
-    //padding: 5px;
-  }
 }
 
 h1 {
   line-height: 80px;
+}
+
+.board_desc {
+  line-height: 29px;
 }
 
 table.board {

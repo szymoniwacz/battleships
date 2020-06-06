@@ -23,11 +23,11 @@ const ActionsBar = (
 
   return (
     <Fragment>
-      <div className="col-5">
+      <div className="col-lg-5">
         <div className="alert alert-info">{ infoMessage() }</div>
       </div>
-      <div className="col-3">
-        <div className="btn-group float-right" role="group">
+      <div className="col-lg-3">
+        <div className="btn-group" role="group">
           <CopyToClipboard text={window.location.href}
                            onCopy={() => setCopied(true)}>
             <button type="button" className="btn btn-sm btn-success">{ copied ? "Url copied" : "Copy url" }</button>

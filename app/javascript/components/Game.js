@@ -12,6 +12,7 @@ class Game extends Component {
     super(props)
 
     this.state = {
+      currentPlayerName: this.props.currentPlayerName || "player1",
       loadingMove: false,
       moveAvailable: this.props.moveAvailable,
       myHits: this.props.myHits,
@@ -21,6 +22,7 @@ class Game extends Component {
       opponentConnected: this.props.opponentConnected || false,
       opponentHits: this.props.opponentHits || 0,
       opponentMoves: this.props.opponentMoves || [],
+      opponentName: this.props.opponentName || "player2",
       opponentSunk: this.props.opponentSunk || [],
       opponentWon: this.props.opponentWon || false,
       playerConnected: true,
@@ -126,7 +128,7 @@ class Game extends Component {
   sendMove = (x, y) => {
     if (this.moveUnavailable(x, y)) { return null }
 
-    const params = { slug: this.props.slug, currentPlayerId: this.props.currentPlayerId, x: x, y: y };
+    const params = { slug: this.props.gameSlug, currentPlayerId: this.props.currentPlayerId, x: x, y: y };
     this.setState({ loadingMove: true }, () => (
       api().post('/moves', params)
         .catch(error => console.log(error))
@@ -136,6 +138,8 @@ class Game extends Component {
 
   render() {
     const {
+      currentPlayerId,
+      gameSlug,
       gameStatisticsUrl,
       myShips,
       newGameUrl,
@@ -143,6 +147,7 @@ class Game extends Component {
     } = this.props;
 
     const {
+      currentPlayerName,
       moveAvailable,
       myHits,
       myMoves,
@@ -151,6 +156,7 @@ class Game extends Component {
       opponentConnected,
       opponentHits,
       opponentMoves,
+      opponentName,
       opponentSunk,
       opponentWon,
       playerConnected,
@@ -163,7 +169,7 @@ class Game extends Component {
             <h1>Battleships</h1>
           </div>
         </div>
-        <div className="row justify-content-center">
+        <div className="row">
           <ActionsBar
             newGameUrl={newGameUrl}
             gameStatisticsUrl={gameStatisticsUrl}
@@ -176,15 +182,7 @@ class Game extends Component {
         </div>
         <div className="row justify-content-center">
           <div className="col-lg-4 text-center">
-            My board
-          </div>
-          <div className="col-lg-4 text-center">
-            Opponents board
-          </div>
-          <div className="col-lg-4 text-center"></div>
-        </div>
-        <div className="row justify-content-center">
-          <div className="col-lg-4 text-center">
+            <span className="board_desc">My board</span>
             <Board
               moves={opponentMoves}
               ships={myShips}
@@ -198,6 +196,7 @@ class Game extends Component {
             />
           </div>
           <div className="col-lg-4 text-center">
+            <span className="board_desc">Opponents board</span>
             <Board
               moveAvailable={playerConnected && moveAvailable && opponentConnected}
               moves={myMoves}
@@ -212,12 +211,22 @@ class Game extends Component {
             />
           </div>
           <div className="col-lg-4 text-center">
-            <Chat />
+            <Chat
+              currentPlayerId={currentPlayerId}
+              gameSlug={gameSlug}
+              playerName={currentPlayerName}
+              opponentName={opponentName}
+            />
           </div>
         </div>
       </div>
     )
   }
+}
+
+Game.defaultProps = {
+  currentPlayerName: "player1",
+  opponentName: "player2",
 }
 
 Game.propTypes = {
@@ -235,7 +244,7 @@ Game.propTypes = {
   opponentSunk: PropTypes.array,
   playerConnected: PropTypes.bool,
   shipsLength: PropTypes.number,
-  slug: PropTypes.string.isRequired,
+  gameSlug: PropTypes.string.isRequired,
 }
 
 export default Game

@@ -3,7 +3,12 @@ Rails.application.routes.draw do
 
   resources 'games', only: [:new, :show], param: :slug do
     get 'statistics', on: :member
+    resource 'chat', except: :all do
+      post 'send_message', on: :member
+      post 'update_player_name', on: :member
+    end
   end
+  # TODO: move moves to game
   resources 'moves', only: [:create]
 
   root to: 'games#new'

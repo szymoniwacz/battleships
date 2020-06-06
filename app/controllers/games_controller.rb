@@ -37,6 +37,7 @@ class GamesController < ApplicationController
   def game_props
     {
       current_player_id: current_player.id,
+      game_slug: current_game.slug,
       game_statistics_url: statistics_game_url(current_game.slug),
       move_available: MovesChecker.new(player: current_player).available?,
       my_hits: current_player.hits,
@@ -47,7 +48,7 @@ class GamesController < ApplicationController
       new_game_url: new_game_url,
       opponent_connected: current_game.players.size == 2,
       ships_length: current_player.ships.sum('size'),
-      slug: current_game.slug
+      current_player_name: current_player.name,
     }.merge(opponent_props)
   end
 
@@ -58,6 +59,7 @@ class GamesController < ApplicationController
         opponent_hits: opponent.hits,
         opponent_moves: opponent.moves.map{ [_1.x, _1.y, _1.hit] },
         opponent_sunk: opponent.sunk,
+        opponent_name: opponent.name,
         opponent_won: opponent.ships.sum('size') == opponent.hits,
       }
     else
