@@ -1,10 +1,20 @@
 class GamesChannel < ApplicationCable::Channel
+  before_subscribe :set_game
+  before_unsubscribe :set_game
+
   def subscribed
-    game = Game.find_by(slug: params[:slug])
-    stream_for game
+    stream_for @game
+
+    GamesChannel.broadcast_to @game, { action: "playerConnected", playerId: current_player.id }
   end
 
   def unsubscribed
-    # Any cleanup needed when channel is unsubscribed
+    GamesChannel.broadcast_to @game, { action: "playerDisconnected", playerId: current_player.id }
+  end
+
+  private
+
+  def set_game
+    @game ||= Game.find_by(slug: params[:slug])
   end
 end

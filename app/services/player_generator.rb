@@ -11,11 +11,6 @@ class PlayerGenerator
     @player.create_board!
 
     generate_ships
-
-    GamesChannel.broadcast_to @game, {
-      action: 'opponentConnected',
-      shipsLength: @player.ships.pluck(:coordinates).inject(0){ _1 += _2.size }
-    }
   end
 
   def generate_ships

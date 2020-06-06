@@ -14,7 +14,7 @@ class GamesController < ApplicationController
 
       @current_player = PlayerGenerator.new(game: current_game).player
       cookies[:game_slug] = current_game.slug
-      session[:player_id] = current_player.id
+      cookies.encrypted[:player_id] = current_player.id
     end
     @props = game_props
   end

@@ -17,7 +17,7 @@ class Game extends Component {
       myMoves: this.props.myMoves,
       mySunk: this.props.mySunk,
       myWon: this.props.myWon,
-      opponentConnected: this.props.opponentConnected,
+      opponentConnected: this.props.opponentConnected || false,
       opponentHits: this.props.opponentHits || 0,
       opponentMoves: this.props.opponentMoves || [],
       opponentSunk: this.props.opponentSunk || [],
@@ -64,27 +64,47 @@ class Game extends Component {
     }
   }
 
+  processReceivedData = (data) => {
+    const currentPlayerId = this.props.currentPlayerId
+    switch (data["action"]) {
+      case "move":
+        this.processMove(data)
+        break;
+      case "playerConnected":
+        if (currentPlayerId === data["playerId"]) {
+          this.setState({ playerConnected: true })
+          console.log("player connected");
+        } else {
+          this.setState({ opponentConnected: true })
+          console.log("opponent connected");
+        }
+        break;
+      case 'playerDisconnected':
+        if (currentPlayerId === data["playerId"]) {
+          this.setState({ playerConnected: false })
+          console.log("player disconnected");
+        } else {
+          this.setState({ opponentConnected: false })
+          console.log("opponent disconnected");
+        }
+    }
+  }
+
   componentDidMount() {
     const that = this
-    const currentPlayerId = this.props.currentPlayerId
-    consumer.subscriptions.create({ channel: "GamesChannel", slug: this.props.slug }, {
-      connected() {
-        console.log(`${currentPlayerId} connected`)
-        that.setState({ playerConnected: true })
-      },
+    this.subscription = consumer.subscriptions.create({ channel: "GamesChannel", slug: this.props.slug }, {
+      connected() {},
 
-      disconnected() {
-        console.log(`${currentPlayerId} disconnected`)
-        that.setState({ playerConnected: false })
-      },
+      disconnected() {},
 
       received(data) {
-        if (data["action"] === "move") { that.processMove(data) }
-        if (data["action"] === "opponentConnected") {
-          that.setState({ opponentConnected: true })
-        }
+        that.processReceivedData(data)
       }
     });
+  }
+
+  componentWillUnmount(){
+    consumer.subscriptions.remove(this.subscription);
   }
 
   moveAlreadyDone = (x, y) => {

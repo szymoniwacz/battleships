@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::Base
   def current_player
-    @current_player ||= current_game.players.find_by(id: session[:player_id])
+    @current_player ||= current_game.players.find_by(id: cookies.encrypted[:player_id])
   end
 
   def current_game
