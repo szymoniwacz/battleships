@@ -91,14 +91,19 @@ class Game extends Component {
     for (let move of this.state.myMoves) {
       if (move[0] === x && move[1] === y) { return true }
     }
+    return false;
   }
 
-  sendMove = (x, y) => {
-    if (!this.state.opponentConnected ||
+  moveUnavailable = (x, y) => {
+    return (!this.state.opponentConnected ||
       !this.state.moveAvailable ||
       this.state.loadingMove ||
       this.moveAlreadyDone(x, y)
-    ) { return null }
+    ) === true
+  }
+
+  sendMove = (x, y) => {
+    if (this.moveUnavailable(x, y)) { return null }
 
     const params = { slug: this.props.slug, currentPlayerId: this.props.currentPlayerId, x: x, y: y };
     this.setState({ loadingMove: true }, () => (
