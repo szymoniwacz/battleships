@@ -22,7 +22,7 @@ class Game extends Component {
       opponentMoves: this.props.opponentMoves || [],
       opponentSunk: this.props.opponentSunk || [],
       opponentWon: this.props.opponentWon || false,
-      playerConnected: false,
+      playerConnected: true,
     }
   }
 

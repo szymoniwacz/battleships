@@ -16,9 +16,11 @@ gem 'turbolinks', '~> 5'
 gem 'webpacker', '~> 4.0'
 
 group :development, :test do
+  gem 'capybara', '3.32.2'
   gem 'factory_bot_rails', '5.2.0'
   gem 'pry', '0.13.1'
   gem 'rspec-rails', '4.0.1'
+  gem 'selenium-webdriver', '3.142.7'
 end
 
 group :development do
